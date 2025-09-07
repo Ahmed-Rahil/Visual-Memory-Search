@@ -36,10 +36,4 @@ def extract_text_from_image(image_path: str):
   
 
 
-from sentence_transformers import SentenceTransformer
-def load_model():
-  model_name = 'clip-ViT-B-32'
-  print(f"Loading sentence transformer model: {model_name}")
-  model = SentenceTransformer(model_name, device='cpu', use_auth_token=None)
-  print("Model loaded successfully.")
-  return model
+
