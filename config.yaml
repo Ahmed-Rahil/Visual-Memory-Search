@@ -1,0 +1,12 @@
+# Configuration for Visual Memory Search
+
+# Model configuration
+embedding_model: "clip-ViT-B-32"
+
+# Database configuration
+database:
+  path: "data/"
+  collection_name: "screenshots"
+
+# Default folder for indexing
+default_screenshots_folder: "screenshots"

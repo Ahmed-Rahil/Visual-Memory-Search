@@ -5,6 +5,8 @@ from PIL import Image
 from sentence_transformers import SentenceTransformer
 import easyocr
 import time
+import numpy as np
+
 
 # --- Configuration ---
 # In a real app, this would come from a config.yaml file
@@ -29,7 +31,7 @@ class Indexer:
         
         # 2. Initialize ChromaDB client and collection
         self.client = chromadb.PersistentClient(path=self.db_path)
-        self.collection = self.client.get_or_create_collection(name=self.collection_name)
+        self.collection = self.client.get_or_create_collection(name=self.collection_name, metadata={"hnsw:space":"cosine"})
         print("Indexer initialized successfully. 🧠")
 
     def _load_embedding_model(self, model_name: str):
@@ -57,22 +59,35 @@ class Indexer:
                 if os.path.splitext(file)[1].lower() in allowed_extensions:
                     yield os.path.join(root, file)
 
-    def process_and_embed(self, image_path: str):
-        """Processes a single image to extract text and generate a combined embedding."""
+
+    def process_and_embed_hybrid(self, image_path: str):
+        """
+        Processes a single image to generate a hybrid embedding from both
+        its visual content and its OCR text.
+        """
+        # 1. Get the two raw signals: image pixels and OCR text
         try:
-            # 3. Graceful error handling for OCR
+            image = Image.open(image_path)
             ocr_results = self.reader.readtext(image_path, detail=0, paragraph=True)
             ocr_text = " ".join(ocr_results)
-        except Exception:
-            ocr_text = "" # If OCR fails, proceed without text
+        except Exception as e:
+            print(f"   -> Warning: Could not process image or OCR for {image_path}: {e}")
+            # If the image is broken, we can't do anything.
+            return None, None 
 
-        # 4. The key step: creating the combined text for embedding
-        combined_text = f"A screenshot showing text: {ocr_text}"
+        # 2. Generate the VISUAL embedding from the image itself
+        image_embedding = self.model.encode(image)
 
-        # Generate embedding from the combined text
-        embedding = self.model.encode(combined_text).tolist()
+        # 3. Generate the TEXTUAL embedding from our descriptive prompt
+        text_prompt = f"A screenshot showing text: {ocr_text}"
+        text_embedding = self.model.encode(text_prompt)
+
+        # 4. Combine the embeddings by averaging them
+        # Ensure they are numpy arrays for the calculation
+        hybrid_embedding = (np.array(image_embedding) + np.array(text_embedding)) / 2.0
         
-        return embedding, combined_text
+        # Return the final vector and the text we used for indexing
+        return hybrid_embedding.tolist(), text_prompt
 
     def run(self, folder_path: str):
         """Finds all images, processes them, and adds them to the database."""
@@ -89,25 +104,25 @@ class Indexer:
                 print("   -> Already indexed. Skipping.")
                 continue
 
-            embedding, indexed_text = self.process_and_embed(path)
+            embedding, indexed_text = self.process_and_embed_hybrid(path)
             
             self.collection.add(
                 ids=[str(uuid.uuid4())], # Unique ID for each entry
                 embeddings=[embedding],
                 metadatas=[{"filepath": path, "indexed_text": indexed_text}]
             )
-            print(f"   -> Successfully indexed and added to database. ✅")
+            print(f" ✅  -> Successfully indexed and added to database.")
         
         print(f"\n--- Indexing Complete. Total items in database: {self.collection.count()} ---")
 
-# 5. Main execution block
-if __name__ == "__main__":
-    # This makes the script runnable from the command line
-    if not os.path.exists(SCREENSHOTS_FOLDER):
-        os.makedirs(SCREENSHOTS_FOLDER)
-        print(f"Created '{SCREENSHOTS_FOLDER}' directory. Please add your screenshots there and run again.")
-    else:
-        # Create an instance of our Indexer
-        indexer = Indexer(model_name=MODEL_NAME, db_path=DB_PATH, collection_name=COLLECTION_NAME)
-        # Run the indexing process
-        indexer.run(SCREENSHOTS_FOLDER)
+# # 5. Main execution block
+# if __name__ == "__main__":
+#     # This makes the script runnable from the command line
+#     if not os.path.exists(SCREENSHOTS_FOLDER):
+#         os.makedirs(SCREENSHOTS_FOLDER)
+#         print(f"Created '{SCREENSHOTS_FOLDER}' directory. Please add your screenshots there and run again.")
+#     else:
+#         # Create an instance of our Indexer
+#         indexer = Indexer(model_name=MODEL_NAME, db_path=DB_PATH, collection_name=COLLECTION_NAME)
+#         # Run the indexing process
+#         indexer.run(SCREENSHOTS_FOLDER)

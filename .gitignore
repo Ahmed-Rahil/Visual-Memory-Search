@@ -5,6 +5,11 @@ tests/
 0f11f9ef-7d92-4905-9a26-b89be81e6446/
 chroma.sqlite3
 __pycache__/
+data/
+index.py
+vms/__pycache__/indexing.cpython-39.pyc
+searchh.py
+*.pyc
 
 
 # Logs
