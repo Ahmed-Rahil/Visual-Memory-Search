@@ -89,30 +89,30 @@ class Searcher:
         return formatted
 
 # 5. Main execution block to make the script a runnable CLI
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Search for screenshots using natural language.")
-    parser.add_argument("query", type=str, help="The natural language search query.")
-    parser.add_argument(
-        "--top_n", 
-        type=int, 
-        default=5, 
-        help="The number of top results to return."
-    )
-    args = parser.parse_args()
+# if __name__ == "__main__":
+#     parser = argparse.ArgumentParser(description="Search for screenshots using natural language.")
+#     parser.add_argument("query", type=str, help="The natural language search query.")
+#     parser.add_argument(
+#         "--top_n", 
+#         type=int, 
+#         default=5, 
+#         help="The number of top results to return."
+#     )
+#     args = parser.parse_args()
 
-    # Create an instance of our Searcher
-    searcher = Searcher(model_name=MODEL_NAME, db_path=DB_PATH, collection_name=COLLECTION_NAME)
+#     # Create an instance of our Searcher
+#     searcher = Searcher(model_name=MODEL_NAME, db_path=DB_PATH, collection_name=COLLECTION_NAME)
 
-    # Perform the search if the searcher was initialized correctly
-    if searcher.collection:
-        search_results = searcher.search(args.query, top_n=args.top_n)
+#     # Perform the search if the searcher was initialized correctly
+#     if searcher.collection:
+#         search_results = searcher.search(args.query, top_n=args.top_n)
 
-        print("\n--- Search Results ---")
-        if not search_results:
-            print("No matching screenshots found.")
-        else:
-            for result in search_results:
-                print(f"📄 File:       {result['filepath']}")
-                print(f"📈 Confidence: {result['confidence']:.2%}") # Formats as a percentage
-                print("-" * 20)
+#         print("\n--- Search Results ---")
+#         if not search_results:
+#             print("No matching screenshots found.")
+#         else:
+#             for result in search_results:
+#                 print(f"📄 File:       {result['filepath']}")
+#                 print(f"📈 Confidence: {result['confidence']:.2%}") # Formats as a percentage
+#                 print("-" * 20)
 

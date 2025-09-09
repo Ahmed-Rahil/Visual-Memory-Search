@@ -1,3 +1,4 @@
+pyYAML
 torch
 transformers
 sentence-transformers
