@@ -1,56 +1,121 @@
-# Visual Memory Search 🧠
+# 🧠 Visual Memory Search
 
-Search your screenshot history using natural language queries for both text content AND visual elements.
+A powerful tool to search your screenshot history using natural language, understanding both text and visual content.
 
-## What It Does
+![Python Version](https://img.shields.io/badge/python-3.9%2B-blue)
+![Status](https://img.shields.io/badge/status-stable-green)
+![License](https://img.shields.io/badge/license-MIT-lightgrey)
 
-This tool indexes a folder of screenshots, extracting both the text content (via OCR) and the visual features of each image. It then allows you to perform powerful semantic searches like "a screenshot of an error message about authentication" or "a UI with a blue login button".
+---
 
-## Features
+<p align="center">
+  <img src="file\image.png" alt="Visual Memory Search GUI" width="800"/>
+</p>
 
-- **Hybrid Search:** Creates a combined vector from both image pixels and OCR text for highly accurate results.
-- **Natural Language Queries:** Understands the intent behind your search, not just keywords.
-- **Command-Line Interface:** Simple and scriptable interface for indexing and searching.
-- **Local First:** All models and data are stored locally on your machine. No cloud required.
+## ✨ Features
 
-## Setup and Installation
+- **🧠 Hybrid Search:** Combines AI analysis of image pixels and OCR text for highly accurate results.
+- **🖥️ Intuitive GUI:** A simple and clean web interface built with Streamlit for easy searching.
+- **⌨️ Powerful CLI:** A full-featured command-line interface for scripting and power users.
+- **🤖 Automated Indexing:** A background "watcher" automatically detects and indexes new screenshots.
+- **🔒 Local First:** All models and data are processed locally on your machine. Nothing is sent to the cloud.
 
-1.  **Clone the repository:**
+---
+
+## 🚀 Getting Started
+
+Follow these steps to get the project running on your local machine.
+
+### Prerequisites
+
+- Python 3.9 or higher
+- Git
+
+### Installation
+
+1.  **Clone the Repository:**
 
     ```bash
     git clone https://github.com/Ahmed-Rahil/Visual-Memory-Search.git
+
     cd visual-memory-search
     ```
 
-2.  **Create a virtual environment:**
+2.  **Create and Activate a Virtual Environment:**
 
     ```bash
-    python -m venv .venv
+    # macOS / Linux
+    python3 -m venv .venv
     source .venv/bin/activate
+
+    # Windows
+    python -m venv .venv
+    .\.venv\Scripts\activate
     ```
 
-3.  **Install dependencies:**
+3.  **Install Dependencies:**
+
     ```bash
     pip install -r requirements.txt
     ```
 
-## Usage
+4.  **Add Your Screenshots:**
+    Place any images you want to index into the `screenshots/` folder.
 
-First, place any screenshots you want to index into the `screenshots/` folder.
+---
 
-1.  **Index Your Screenshots:**
-    Run the index command. This only needs to be done once for new images.
+## 🖥️ How to Use
+
+You can run this project in two ways. The GUI is recommended for the best experience.
+
+### GUI Application (Recommended)
+
+This method requires two separate terminals running simultaneously.
+
+1.  **Start the Automated Watcher (Terminal 1):**
+    This script monitors your `screenshots` folder and automatically indexes new images. Keep it running in the background.
 
     ```bash
-    python vms/main.py index
+    python watcher.py
     ```
 
-2.  **Search Your History:**
-    Use the search command with your query in quotes.
+2.  **Launch the GUI (Terminal 2):**
+    This will start the Streamlit web server and open the application in your browser.
     ```bash
-    python vms/main.py search "a python code snippet with a for loop"
+    streamlit run app.py
     ```
 
-## Configuration
+### Command-Line Interface (CLI)
 
-You can modify the `config.yaml` file to change the model, database path, or default screenshot folder.
+For scripting or terminal-based workflows, use the unified CLI.
+
+- **Index a Folder (One-Time Scan):**
+
+  ```bash
+  python vms/main.py index --path /path/to/screenshots
+  ```
+
+- **Search from the Terminal:**
+
+  ```bash
+  python vms/main.py search "a python function with a for loop"
+  ```
+
+- **Watch a Folder (CLI version):**
+  ```bash
+  python vms/main.py watch
+  ```
+
+---
+
+## 🛠️ Configuration
+
+Project settings can be modified in the `config.yaml` file:
+
+- `embedding_model`: The AI model to use.
+- `database`: The path for the vector database.
+- `default_screenshots_folder`: The default folder to index and watch.
+
+## Contibution
+
+Contribution is most welcome. Create an Issue if you have suggestion and create a pull request if you have some contibution.

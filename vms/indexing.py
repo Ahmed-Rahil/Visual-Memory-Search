@@ -8,13 +8,6 @@ import time
 import numpy as np
 
 
-# --- Configuration ---
-# In a real app, this would come from a config.yaml file
-SCREENSHOTS_FOLDER = "screenshots"
-DB_PATH = "data/"
-COLLECTION_NAME = "screenshots"
-MODEL_NAME = 'clip-ViT-B-32'
-
 class Indexer:
     """
     A class to handle the indexing of screenshots.
@@ -33,6 +26,38 @@ class Indexer:
         self.client = chromadb.PersistentClient(path=self.db_path)
         self.collection = self.client.get_or_create_collection(name=self.collection_name, metadata={"hnsw:space":"cosine"})
         print("Indexer initialized successfully. 🧠")
+
+    # --- NEW METHOD FOR WATCHDOG ---
+    def index_single_file(self, path: str):
+        """Indexes a single file, checking for existence first."""
+        if self.collection.get(where={"filepath": path})['ids']:
+            print(f"   -> Already indexed. Skipping '{os.path.basename(path)}'.")
+            return
+
+        print(f"\nProcessing new file: {os.path.basename(path)}")
+        embedding, indexed_text = self.process_and_embed_hybrid(path)
+        
+        if embedding is None:
+            return
+
+        self.collection.add(
+            ids=[str(uuid.uuid4())],
+            embeddings=[embedding],
+            metadatas=[{"filepath": path, "indexed_text": indexed_text}]
+        )
+        print(f"   -> Successfully indexed and added to database. ✅")
+
+    def delete_by_path(self, path: str):
+        """Deletes an entry from the database based on its file path metadata."""
+     # First, check if an entry with this filepath exists.
+        if self.collection.get(where={"filepath": path})['ids']:
+        # If it exists, perform the deletion.
+        # The command itself is the action; you don't need to access a key on its return value.
+            self.collection.delete(where={"filepath": path})
+            print(f"  -> Successfully removed '{os.path.basename(path)}' from the index. ✅")
+        else:
+        # It's good practice to handle the case where the file isn't found.
+            print(f"  -> Entry for '{os.path.basename(path)}' not found in the index.")
 
     def _load_embedding_model(self, model_name: str):
         print(f"Loading embedding model: {model_name}")
