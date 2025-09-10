@@ -1,3 +1,5 @@
+# ADD ANYTHING YOu DONT WANT GIT TO TRACK
+
 #virtual environments
 memorySearch/
 screenshots/
@@ -10,6 +12,8 @@ index.py
 vms/__pycache__/indexing.cpython-39.pyc
 searchh.py
 *.pyc
+watcher.py
+Index_handler.py
 
 
 # Logs

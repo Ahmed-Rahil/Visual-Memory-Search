@@ -3,12 +3,6 @@ from sentence_transformers import SentenceTransformer
 import argparse
 import time
 
-# --- Configuration ---
-# MUST match the configuration in indexing.py
-DB_PATH = "data/"
-COLLECTION_NAME = "screenshots"
-MODEL_NAME = 'clip-ViT-B-32'
-
 class Searcher:
     """
     A class to handle searching the screenshot database.
